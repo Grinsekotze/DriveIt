@@ -87,80 +87,21 @@ function paste_auto(e) {
 var b_scale = 11; //world scale, px per meter
 var d_scale = 30; //drawing scale, px per meter
 
-class vehicle_type {
-    constructor(img, scale, base_y, wheelbase, max_speed, acc, coast, brake, max_steer) {
-        this.img = img;
-        this.scale = scale;         // pixels per meter
-        this.base_y = base_y;       // pixel y-value of rear axle
-        this.wheelbase = wheelbase; // m
-        this.max_speed = max_speed; // m/s
-        this.acc = acc;             // m/s²
-        this.coast = coast;         // m/s²
-        this.brake = brake;         // m/s²
-        this.max_steer = max_steer; // radians
-    }
-}
-
-car = new vehicle_type(carImg, 60, 200, 2.5, 20, 6, 2, 12, degtorad(40));
-
-class vehicle {
-
-    constructor(type, x, y, angle, speed) { //all "physical" measurements in SI units
-        this.type = type;
-        this.x = x;
-        this.y = y;
-        this.angle = angle; //radians clockwise (since y axis is downwards)
-        this.speed = speed;
-        this.steer = 0;
-
-        this.fx = x + Math.cos(angle) * type.wheelbase;
-        this.fy = y + Math.sin(angle) * type.wheelbase;
-        this.mode = "neutral";
-    }
-
-    update(delta, acc_in, brake_in, steer_in) {
-
-        if(this.speed == 0 && !acc_in && !brake_in) { this.mode = "neutral"; }
-
-        if(this.mode == "forward") {
-            this.speed += delta * (acc_in * this.type.acc - this.type.coast - brake_in * this.type.brake);
-            if(this.speed < 0) { this.speed = 0; }
-            if(this.speed > this.type.max_speed) { this.speed = this.type.max_speed; }
-        } else if(this.mode == "backward") {
-            this.speed -= delta * (brake_in * this.type.acc - this.type.coast - acc_in * this.type.brake);
-            if(this.speed > 0) { this.speed = 0; }
-            if(this.speed < -this.type.max_speed) { this.speed = -this.type.max_speed; }
-        } else if(this.mode == "neutral") {
-            if(brake_in) { this.mode = "backward"; }
-            if(acc_in) { this.mode = "forward"; }
-        }
-        
-        this.steer += delta * degtorad(180) * steer_in * (Math.exp(-Math.log(2) / 15.0 * this.speed));
-        if(this.steer >  this.type.max_steer) { this.steer =  this.type.max_steer; }
-        if(this.steer < -this.type.max_steer) { this.steer = -this.type.max_steer; }
-        this.steer *= (1 - delta * 3.0); 
-
-        this.fx += delta * this.speed * Math.cos(this.angle + this.steer);
-        this.fy += delta * this.speed * Math.sin(this.angle + this.steer);
-        this.angle = get_angle_from_to(this.x, this.y, this.fx, this.fy);
-        this.x = this.fx - this.type.wheelbase * Math.cos(this.angle);
-        this.y = this.fy - this.type.wheelbase * Math.sin(this.angle);
-    }
-
-    draw() {
-        drawRotScale(this.type.img, this.x, this.y, this.type.img.width / 2, this.type.base_y, this.angle + degtorad(90), 1.0 / this.type.scale)
-        ctx.fillStyle = "red";
-        ctx.fillRect(this.x - 0.05, this.y - 0.05, 0.15, 0.15);
-        ctx.fillStyle = "yellow";
-        ctx.fillRect(this.fx - 0.05, this.fy - 0.05, 0.15, 0.15);
-        ctx.strokeStyle = "yellow";
-        ctx.lineWidth = 0.05;
-        drawLine(this.fx, this.fy, this.fx + 0.5 * Math.cos(this.angle + this.steer), this.fy + 0.5 * Math.sin(this.angle + this.steer));
-    }
-
-}
-
-player = new vehicle(car, 7, 50, 0, 0)
+car = new vehicle_type(
+    carImg,         // image
+    60,             // scale [px/meter]
+    200,            // rear axle position [px]
+    2.5,            // wheelbase [m]
+    20,             // max speed [m/s]
+    6,              // acceleration [m/s²]
+    2,              // drag [m/s²]
+    12,             // brake [m/s²]
+    degtorad(40),   // steering lock
+    1               // rear axle to coupling [m]
+);
+player = new vehicle(car, 7, 50, 0, 0);
+trailer = new vehicle(car, 3, 50, 0, 0);
+player.trail = trailer;
 
 
 // ----------------- game loop -------------------------
