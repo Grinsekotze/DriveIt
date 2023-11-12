@@ -12,12 +12,12 @@ backgroundImg.src = "img/spielteppich.jpg";
 
 // ----------------- helper functions -----------------------
 
-function drawRotated(img, x, y, pivot_x, pivot_y, angle) {
+function drawRotScale(img, x, y, pivot_x, pivot_y, angle, factor) {
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(angle);
-    ctx.translate(-pivot_x, -pivot_y);
-    ctx.drawImage(img, 0, 0);
+    ctx.translate(-pivot_x * factor, -pivot_y * factor);
+    ctx.drawImage(img, 0, 0, factor * img.width, factor * img.height);
     ctx.restore();
 }
 
@@ -47,23 +47,23 @@ function get_angle_from_to(x1, y1, x2, y2) {
 
 // ------------------------- driving logic ----------------------------
 
-const scale = 60; //px per meter
+const w_scale = 30; //world scale, px per meter
 
 class vehicle_type {
-    constructor(img, steer_y, base_y, max_speed, acc, coast, brake) {
+    constructor(img, scale, base_y, wheelbase, max_speed, acc, coast, brake, max_steer) {
         this.img = img;
-        this.steer_y = steer_y;     //in px
-        this.base_y = base_y;       //in px
-        this.max_speed = max_speed; //in m/s
-        this.acc = acc;             //in m/s²
-        this.coast = coast;         //in m/s²
-        this.brake = brake;         //in m/s²
-
-        this.wheelbase = (base_y - steer_y) / scale; //in m
+        this.scale = scale;         // pixels per meter
+        this.base_y = base_y;       // pixel y-value of rear axle
+        this.wheelbase = wheelbase; // m
+        this.max_speed = max_speed; // m/s
+        this.acc = acc;             // m/s²
+        this.coast = coast;         // m/s²
+        this.brake = brake;         // m/s²
+        this.max_steer = max_steer; // radians
     }
 }
 
-car = new vehicle_type(carImg, 50, 200, 10, 6, 2, 8);
+car = new vehicle_type(carImg, 60, 200, 2.5, 10, 6, 2, 8, degtorad(40));
 
 class vehicle {
 
@@ -111,20 +111,19 @@ class vehicle {
     }
 
     draw() {
-        drawRotated(this.type.img, scale * this.x, scale * this.y, this.type.img.width / 2, this.type.base_y, this.angle + degtorad(90))
+        drawRotScale(this.type.img, w_scale * this.x, w_scale * this.y, this.type.img.width / 2, this.type.base_y, this.angle + degtorad(90), w_scale / this.type.scale)
         ctx.fillStyle = "red";
-        ctx.fillRect(scale * this.x - 1, scale * this.y - 1, 3, 3);
+        ctx.fillRect(w_scale * this.x - 1, w_scale * this.y - 1, 3, 3);
         ctx.fillStyle = "yellow";
-        ctx.fillRect(scale * this.fx - 1, scale * this.fy - 1, 3, 3);
+        ctx.fillRect(w_scale * this.fx - 1, w_scale * this.fy - 1, 3, 3);
         ctx.strokeStyle = "yellow";
-        drawLine(scale * this.fx, scale * this.fy,
-            scale * (this.fx + 0.5 * Math.cos(this.angle + this.steer)), scale * (this.fy + 0.5 * Math.sin(this.angle + this.steer)));
+        drawLine(w_scale * this.fx, w_scale * this.fy,
+            w_scale * (this.fx + 0.5 * Math.cos(this.angle + this.steer)), w_scale * (this.fy + 0.5 * Math.sin(this.angle + this.steer)));
     }
 
 }
 
-player = new vehicle(car, 7, 5, 0, 1)
-player.steer = degtorad(40);
+player = new vehicle(car, 7, 5, 0, 0)
 
 
 // ----------------- game loop -------------------------
