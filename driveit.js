@@ -7,7 +7,7 @@ const gameHeight = cvs.clientHeight;
 // load images
 const carImg = new Image();
 carImg.src = "img/car.png";
-const backgroundImg = new Image();
+backgroundImg = new Image();
 backgroundImg.src = "img/spielteppich.jpg";
 
 // ----------------- helper functions -----------------------
@@ -43,6 +43,36 @@ function get_angle(x, y) {
 
 function get_angle_from_to(x1, y1, x2, y2) {
     return get_angle(x2 - x1, y2 - y1);
+}
+
+// ------------------------- pasting a background image ---------------
+
+document.addEventListener('paste', function (e) { paste_auto(e); }, false);
+
+function paste_auto(e) {
+    if (e.clipboardData) {
+        var items = e.clipboardData.items;
+        if (!items) return;
+        
+        //access data directly
+        var is_image = false;
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf("image") !== -1) {
+                //image
+                var blob = items[i].getAsFile();
+                var URLObj = window.URL || window.webkitURL;
+                var source = URLObj.createObjectURL(blob);
+                pastedImage = new Image();
+                pastedImage.src = source;
+                backgroundImg = pastedImage;
+                console.log("Image pasted! Created URL " + source);
+                is_image = true;
+            }
+        }
+        if(is_image == true){
+            e.preventDefault();
+        }
+    }
 }
 
 // ------------------------- driving logic ----------------------------
@@ -100,8 +130,8 @@ class vehicle {
         }
         
         this.steer += delta * degtorad(180) * steer_in;
-        if(this.steer >  degtorad(60)) { this.steer =  degtorad(60); }
-        if(this.steer < -degtorad(60)) { this.steer = -degtorad(60); }
+        if(this.steer >  this.type.max_steer) { this.steer =  this.type.max_steer; }
+        if(this.steer < -this.type.max_steer) { this.steer = -this.type.max_steer; }
         this.steer *= (1 - delta * 2.0); 
 
         this.fx += delta * this.speed * Math.cos(this.angle + this.steer);
@@ -137,8 +167,8 @@ window.onkeydown = function(e) { isPressed[e.keyCode] = true; }
 
 function game_update(delta) {
 
-    d_scale += delta * 20 * (isPressed[83] - isPressed[65]); //zoom using A and S keys
-    w_scale += delta * 20 * (isPressed[87] - isPressed[81]); //scale world using Q and W keys
+    d_scale *= (1 + delta * 1.0 * (isPressed[83] - isPressed[65])); //zoom using A and S keys
+    w_scale /= (1 + delta * 1.0 * (isPressed[87] - isPressed[81])); //scale world using Q and W keys
 
     acc_in   = isPressed[38]; //up
     brake_in = isPressed[40]; //down
@@ -164,7 +194,21 @@ function draw() {
 
     player.draw()
 
-    ctx.font = "28px Arial";
+    // visualize scale in bottom right corner
+    scale_level = Math.floor(Math.log10(d_scale));
+    scale_unit = 10 ** (1 - scale_level);
+    if(d_scale * scale_unit < 20) { scale_unit *= 5; }
+    if(d_scale * scale_unit < 50) { scale_unit *= 2; }
+    ctx.fillStyle = "white";
+    ctx.strokeStyle = "white";
+    drawLine(gameWidth - 20, gameHeight - 20, gameWidth - 20 - d_scale * scale_unit, gameHeight - 20);
+    drawLine(gameWidth - 20, gameHeight - 20, gameWidth - 20, gameHeight - 30);
+    drawLine(gameWidth - 20 - d_scale * scale_unit, gameHeight - 20, gameWidth - 20 - d_scale * scale_unit, gameHeight - 30);
+    drawLine(gameWidth - 20, gameHeight - 20, gameWidth - 20 - d_scale * scale_unit, gameHeight - 20);
+    ctx.font = "14px Arial";
+    ctx.fillText(scale_unit + "m", gameWidth - 30 - 0.5 * d_scale * scale_unit, gameHeight - 25);
+
+    // ctx.font = "28px Arial";
     // for(k = 32; k <= 40; k++) {
     //     ctx.fillStyle = isPressed[k] ? "red" : "black";
     //     ctx.fillText(k, 40 * (k-30), 60);
