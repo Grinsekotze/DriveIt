@@ -47,7 +47,8 @@ function get_angle_from_to(x1, y1, x2, y2) {
 
 // ------------------------- driving logic ----------------------------
 
-const w_scale = 30; //world scale, px per meter
+var w_scale = 30; //world scale, px per meter
+var d_scale = 30; //drawing scale, px per meter
 
 class vehicle_type {
     constructor(img, scale, base_y, wheelbase, max_speed, acc, coast, brake, max_steer) {
@@ -111,14 +112,14 @@ class vehicle {
     }
 
     draw() {
-        drawRotScale(this.type.img, w_scale * this.x, w_scale * this.y, this.type.img.width / 2, this.type.base_y, this.angle + degtorad(90), w_scale / this.type.scale)
+        drawRotScale(this.type.img, d_scale * this.x, d_scale * this.y, this.type.img.width / 2, this.type.base_y, this.angle + degtorad(90), d_scale / this.type.scale)
         ctx.fillStyle = "red";
-        ctx.fillRect(w_scale * this.x - 1, w_scale * this.y - 1, 3, 3);
+        ctx.fillRect(d_scale * this.x - 1, d_scale * this.y - 1, 3, 3);
         ctx.fillStyle = "yellow";
-        ctx.fillRect(w_scale * this.fx - 1, w_scale * this.fy - 1, 3, 3);
+        ctx.fillRect(d_scale * this.fx - 1, d_scale * this.fy - 1, 3, 3);
         ctx.strokeStyle = "yellow";
-        drawLine(w_scale * this.fx, w_scale * this.fy,
-            w_scale * (this.fx + 0.5 * Math.cos(this.angle + this.steer)), w_scale * (this.fy + 0.5 * Math.sin(this.angle + this.steer)));
+        drawLine(d_scale * this.fx, d_scale * this.fy,
+            d_scale * (this.fx + 0.5 * Math.cos(this.angle + this.steer)), d_scale * (this.fy + 0.5 * Math.sin(this.angle + this.steer)));
     }
 
 }
@@ -135,6 +136,9 @@ window.onkeyup = function(e) { isPressed[e.keyCode] = false; }
 window.onkeydown = function(e) { isPressed[e.keyCode] = true; }
 
 function game_update(delta) {
+
+    d_scale += delta * 20 * (isPressed[83] - isPressed[65]); //zoom using A and S keys
+    w_scale += delta * 20 * (isPressed[87] - isPressed[81]); //scale world using Q and W keys
 
     acc_in   = isPressed[38]; //up
     brake_in = isPressed[40]; //down
@@ -156,20 +160,18 @@ function draw() {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, 1600, 900);
 
-    ctx.drawImage(backgroundImg, 0, 0, 1280, 720);
+    ctx.drawImage(backgroundImg, 0, 0, backgroundImg.width * d_scale / w_scale, backgroundImg.height * d_scale / w_scale);
 
     player.draw()
 
-    // ctx.font = "24px Arial";
+    ctx.font = "28px Arial";
     // for(k = 32; k <= 40; k++) {
     //     ctx.fillStyle = isPressed[k] ? "red" : "black";
     //     ctx.fillText(k, 40 * (k-30), 60);
     // }
     // ctx.fillStyle = "black";
-    // ctx.fillText("x: " + player.x, 80, 100);
-    // ctx.fillText("y: " + player.y, 80, 140);
-    // ctx.fillText("a: " + player.angle, 80, 180);
-    // ctx.fillText("s: " + player.speed, 80, 220);
+    // ctx.fillText("d_scale: " + d_scale, 80, 100);
+    // ctx.fillText("w_scale: " + w_scale, 80, 140);
 
 }
 
