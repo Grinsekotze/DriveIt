@@ -3,7 +3,8 @@ const ctx = cvs.getContext("2d");
 
 const gameWidth = cvs.clientWidth;
 const gameHeight = cvs.clientHeight;
-const margin = 300;
+const margin_x = 400;
+const margin_y = 150;
 
 var pan_x = 0;
 var pan_y = 0;
@@ -13,6 +14,8 @@ const carImg = new Image();
 carImg.src = "img/car.png";
 backgroundImg = new Image();
 backgroundImg.src = "img/spielteppich.jpg";
+var back_x = 0;
+var back_y = 0;
 
 // ----------------- helper functions -----------------------
 
@@ -81,7 +84,7 @@ function paste_auto(e) {
 
 // ------------------------- driving logic ----------------------------
 
-var w_scale = 5; //world scale, px per meter
+var b_scale = 5; //world scale, px per meter
 var d_scale = 30; //drawing scale, px per meter
 
 class vehicle_type {
@@ -170,16 +173,26 @@ window.onkeyup = function(e) { isPressed[e.keyCode] = false; }
 window.onkeydown = function(e) { isPressed[e.keyCode] = true; }
 
 function game_update(delta) {
-
-    d_scale *= (1 + delta * 1.0 * (isPressed[83] - isPressed[65])); //zoom using A and S keys
-    w_scale /= (1 + delta * 1.0 * (isPressed[87] - isPressed[81])); //scale world using Q and W keys
-
     
     acc_in   = isPressed[38]; //up
     brake_in = isPressed[40]; //down
     steer_in = isPressed[39] - isPressed[37]; //right - left. Note that since our y axis is flipped, positive angles are clockwise
     
     player.update(delta, acc_in, brake_in, steer_in);
+
+    d_old = d_scale; b_old = b_scale;
+    d_scale *= (1 + delta * 1.0 * (isPressed[83] - isPressed[65])); //zoom using A and S keys
+    b_scale /= (1 + delta * 1.0 * (isPressed[87] - isPressed[81])); //scale background using Q and W keys
+    pan_x = pan_x + d_old * player.x - d_scale * player.x; //offset canvas so zoom motion is towards the player
+    pan_y = pan_y + d_old * player.y - d_scale * player.y;
+    // back_x = back_x + b_old * player.x - b_scale * player.x; //offset background so the player stays at the same pixel
+    // back_y = back_y + b_old * player.y - b_scale * player.y;
+
+    // pan to keep the player on screen.
+    if(d_scale * player.fx + pan_x >  gameWidth - margin_x) { pan_x =  gameWidth - margin_x - d_scale * player.fx; }
+    if(d_scale * player.fy + pan_y > gameHeight - margin_y) { pan_y = gameHeight - margin_y - d_scale * player.fy; }
+    if(d_scale * player.fx + pan_x < margin_x) { pan_x = margin_x - d_scale * player.fx; }
+    if(d_scale * player.fy + pan_y < margin_y) { pan_y = margin_y - d_scale * player.fy; }
 
     // pan_x += delta * 40 * (isPressed[76] - isPressed[74]); //pan using IJKL
     // pan_y += delta * 40 * (isPressed[75] - isPressed[73]);
@@ -198,15 +211,9 @@ function draw() {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, 1600, 900);
 
-    // pan to keep the player on screen.
-    if(d_scale * player.fx + pan_x >  gameWidth - margin) { pan_x =  gameWidth - margin - d_scale * player.fx; }
-    if(d_scale * player.fy + pan_y > gameHeight - margin) { pan_y = gameHeight - margin - d_scale * player.fy; }
-    if(d_scale * player.fx + pan_x < margin) { pan_x = margin - d_scale * player.fx; }
-    if(d_scale * player.fy + pan_y < margin) { pan_y = margin - d_scale * player.fy; }
-
     ctx.save();
     ctx.translate(pan_x, pan_y);
-    ctx.drawImage(backgroundImg, 0, 0, backgroundImg.width * d_scale / w_scale, backgroundImg.height * d_scale / w_scale);
+    ctx.drawImage(backgroundImg, back_x, back_y, backgroundImg.width * d_scale / b_scale, backgroundImg.height * d_scale / b_scale);
     player.draw();
     ctx.restore();
 
