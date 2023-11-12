@@ -3,6 +3,10 @@ const ctx = cvs.getContext("2d");
 
 const gameWidth = cvs.clientWidth;
 const gameHeight = cvs.clientHeight;
+const margin = 300;
+
+var pan_x = 0;
+var pan_y = 0;
 
 // load images
 const carImg = new Image();
@@ -77,8 +81,8 @@ function paste_auto(e) {
 
 // ------------------------- driving logic ----------------------------
 
-var w_scale = 9.5; //world scale, px per meter
-var d_scale = 11; //drawing scale, px per meter
+var w_scale = 5; //world scale, px per meter
+var d_scale = 30; //drawing scale, px per meter
 
 class vehicle_type {
     constructor(img, scale, base_y, wheelbase, max_speed, acc, coast, brake, max_steer) {
@@ -170,11 +174,15 @@ function game_update(delta) {
     d_scale *= (1 + delta * 1.0 * (isPressed[83] - isPressed[65])); //zoom using A and S keys
     w_scale /= (1 + delta * 1.0 * (isPressed[87] - isPressed[81])); //scale world using Q and W keys
 
+    
     acc_in   = isPressed[38]; //up
     brake_in = isPressed[40]; //down
     steer_in = isPressed[39] - isPressed[37]; //right - left. Note that since our y axis is flipped, positive angles are clockwise
-
+    
     player.update(delta, acc_in, brake_in, steer_in);
+
+    // pan_x += delta * 40 * (isPressed[76] - isPressed[74]); //pan using IJKL
+    // pan_y += delta * 40 * (isPressed[75] - isPressed[73]);
 }
 
 let lastLoop = new Date();
@@ -190,9 +198,17 @@ function draw() {
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, 1600, 900);
 
-    ctx.drawImage(backgroundImg, 0, 0, backgroundImg.width * d_scale / w_scale, backgroundImg.height * d_scale / w_scale);
+    // pan to keep the player on screen.
+    if(d_scale * player.fx + pan_x >  gameWidth - margin) { pan_x =  gameWidth - margin - d_scale * player.fx; }
+    if(d_scale * player.fy + pan_y > gameHeight - margin) { pan_y = gameHeight - margin - d_scale * player.fy; }
+    if(d_scale * player.fx + pan_x < margin) { pan_x = margin - d_scale * player.fx; }
+    if(d_scale * player.fy + pan_y < margin) { pan_y = margin - d_scale * player.fy; }
 
-    player.draw()
+    ctx.save();
+    ctx.translate(pan_x, pan_y);
+    ctx.drawImage(backgroundImg, 0, 0, backgroundImg.width * d_scale / w_scale, backgroundImg.height * d_scale / w_scale);
+    player.draw();
+    ctx.restore();
 
     // visualize scale in bottom right corner
     scale_level = Math.floor(Math.log10(d_scale));
