@@ -12,6 +12,9 @@ var pan_y = 0;
 // load images
 const carImg = new Image();
 carImg.src = "img/car.png";
+const trailerImg = new Image();
+trailerImg.src = "img/trailer.png";
+
 backgroundImg = new Image();
 backgroundImg.src = "img/campus.jpg";
 var back_x = 0;
@@ -87,21 +90,11 @@ function paste_auto(e) {
 var b_scale = 11; //world scale, px per meter
 var d_scale = 30; //drawing scale, px per meter
 
-car = new vehicle_type(
-    carImg,         // image
-    60,             // scale [px/meter]
-    200,            // rear axle position [px]
-    2.5,            // wheelbase [m]
-    20,             // max speed [m/s]
-    6,              // acceleration [m/s²]
-    2,              // drag [m/s²]
-    12,             // brake [m/s²]
-    degtorad(40),   // steering lock
-    1               // rear axle to coupling [m]
-);
 player = new vehicle(car, 7, 50, 0, 0);
-trailer = new vehicle(car, 3, 50, 0, 0);
-player.trail = trailer;
+trailer1 = new vehicle(lightTrailer, 3, 50, 0, 0);
+trailer2 = new vehicle(lightTrailer, 1, 50, 0, 0);
+player.trail = trailer1;
+trailer1.trail = trailer2;
 
 
 // ----------------- game loop -------------------------
@@ -119,9 +112,6 @@ function game_update(delta) {
     steer_in = isPressed[39] - isPressed[37]; //right - left. Note that since our y axis is flipped, positive angles are clockwise
     
     player.update(delta, acc_in, brake_in, steer_in);
-
-    
-    // player_px_on_bg_x = 
 
     d_old = d_scale; b_old = b_scale;
     d_scale *= (1 + delta * 1.0 * (isPressed[83] - isPressed[65])); //zoom using A and S keys
@@ -158,7 +148,7 @@ function draw() {
     ctx.translate(pan_x, pan_y);
     ctx.scale(d_scale, d_scale);
     ctx.drawImage(backgroundImg, back_x, back_y, backgroundImg.width / b_scale, backgroundImg.height / b_scale);
-    player.draw();
+    player.draw(true);
     ctx.restore();
 
     // visualize scale in bottom right corner

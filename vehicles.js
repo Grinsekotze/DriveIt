@@ -69,17 +69,44 @@ class vehicle {
             this.fy + delta * this.speed * Math.sin(this.angle + this.steer));
     }
 
-    draw() {
+    draw(with_points) {
         drawRotScale(this.type.img, this.x, this.y, this.type.img.width / 2, this.type.base_y, this.angle + degtorad(90), 1.0 / this.type.scale)
-        ctx.fillStyle = "red";
-        ctx.fillRect(this.x - 0.05, this.y - 0.05, 0.15, 0.15);
-        ctx.fillStyle = "yellow";
-        ctx.fillRect(this.fx - 0.05, this.fy - 0.05, 0.15, 0.15);
-        ctx.strokeStyle = "yellow";
-        ctx.lineWidth = 0.05;
-        drawLine(this.fx, this.fy, this.fx + 0.5 * Math.cos(this.angle + this.steer), this.fy + 0.5 * Math.sin(this.angle + this.steer));
+        if(with_points) {
+            ctx.fillStyle = "red";
+            ctx.fillRect(this.x - 0.05, this.y - 0.05, 0.15, 0.15);
+            ctx.fillStyle = "yellow";
+            ctx.fillRect(this.fx - 0.05, this.fy - 0.05, 0.15, 0.15);
+            ctx.strokeStyle = "yellow";
+            ctx.lineWidth = 0.05;
+            drawLine(this.fx, this.fy, this.fx + 0.5 * Math.cos(this.angle + this.steer), this.fy + 0.5 * Math.sin(this.angle + this.steer));
+        }
 
-        if(this.trail) { this.trail.draw(); }
+        if(this.trail) { this.trail.draw( false ); }
     }
 
 }
+
+car = new vehicle_type(
+    carImg,         // image
+    60,             // scale [px/meter]
+    200,            // rear axle position [px]
+    2.5,            // wheelbase [m]
+    20,             // max speed [m/s]
+    6,              // acceleration [m/s²]
+    2,              // drag [m/s²]
+    12,             // brake [m/s²]
+    degtorad(40),   // steering lock
+    0.9             // rear axle to coupling [m]
+);
+lightTrailer = new vehicle_type(
+    trailerImg,
+    92,
+    380,
+    3.75,
+    100,
+    100,
+    0,
+    100,
+    degtorad(90),
+    2.0
+);
