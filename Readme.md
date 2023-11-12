@@ -1,3 +1,5 @@
-# Hamster Game
+# Drive it!
 
-Use arrow keys to move. Get as much toilet paper as possible without being caught.
+This little game allows you to drive different vehicles on a background image you paste in.
+For example, you can screenshot a satellite image or a plan of a road and try out which
+vehicles fit where.
