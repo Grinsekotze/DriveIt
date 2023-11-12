@@ -180,11 +180,16 @@ function game_update(delta) {
     
     player.update(delta, acc_in, brake_in, steer_in);
 
+    
+    // player_px_on_bg_x = 
+
     d_old = d_scale; b_old = b_scale;
     d_scale *= (1 + delta * 1.0 * (isPressed[83] - isPressed[65])); //zoom using A and S keys
     b_scale /= (1 + delta * 1.0 * (isPressed[87] - isPressed[81])); //scale background using Q and W keys
     pan_x = pan_x + d_old * player.x - d_scale * player.x; //offset canvas so zoom motion is towards the player
     pan_y = pan_y + d_old * player.y - d_scale * player.y;
+    back_x = player.x - (b_old / b_scale) * (-back_x + player.x); //offset background so player stays fixed
+    back_y = player.y - (b_old / b_scale) * (-back_y + player.y);
     
     // pan to keep the player on screen.
     if(d_scale * player.fx + pan_x >  gameWidth - margin_x) { pan_x =  gameWidth - margin_x - d_scale * player.fx; }
