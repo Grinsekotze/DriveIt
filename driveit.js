@@ -13,7 +13,7 @@ var pan_y = 0;
 const carImg = new Image();
 carImg.src = "img/car.png";
 backgroundImg = new Image();
-backgroundImg.src = "img/spielteppich.jpg";
+backgroundImg.src = "img/campus.jpg";
 var back_x = 0;
 var back_y = 0;
 
@@ -84,7 +84,7 @@ function paste_auto(e) {
 
 // ------------------------- driving logic ----------------------------
 
-var b_scale = 5; //world scale, px per meter
+var b_scale = 11; //world scale, px per meter
 var d_scale = 30; //drawing scale, px per meter
 
 class vehicle_type {
@@ -139,7 +139,7 @@ class vehicle {
         this.steer += delta * degtorad(180) * steer_in * (Math.exp(-Math.log(2) / 15.0 * this.speed));
         if(this.steer >  this.type.max_steer) { this.steer =  this.type.max_steer; }
         if(this.steer < -this.type.max_steer) { this.steer = -this.type.max_steer; }
-        this.steer *= (1 - delta * 2.0); 
+        this.steer *= (1 - delta * 3.0); 
 
         this.fx += delta * this.speed * Math.cos(this.angle + this.steer);
         this.fy += delta * this.speed * Math.sin(this.angle + this.steer);
@@ -149,19 +149,19 @@ class vehicle {
     }
 
     draw() {
-        drawRotScale(this.type.img, d_scale * this.x, d_scale * this.y, this.type.img.width / 2, this.type.base_y, this.angle + degtorad(90), d_scale / this.type.scale)
+        drawRotScale(this.type.img, this.x, this.y, this.type.img.width / 2, this.type.base_y, this.angle + degtorad(90), 1.0 / this.type.scale)
         ctx.fillStyle = "red";
-        ctx.fillRect(d_scale * this.x - 1, d_scale * this.y - 1, 3, 3);
+        ctx.fillRect(this.x - 0.05, this.y - 0.05, 0.15, 0.15);
         ctx.fillStyle = "yellow";
-        ctx.fillRect(d_scale * this.fx - 1, d_scale * this.fy - 1, 3, 3);
+        ctx.fillRect(this.fx - 0.05, this.fy - 0.05, 0.15, 0.15);
         ctx.strokeStyle = "yellow";
-        drawLine(d_scale * this.fx, d_scale * this.fy,
-            d_scale * (this.fx + 0.5 * Math.cos(this.angle + this.steer)), d_scale * (this.fy + 0.5 * Math.sin(this.angle + this.steer)));
+        ctx.lineWidth = 0.05;
+        drawLine(this.fx, this.fy, this.fx + 0.5 * Math.cos(this.angle + this.steer), this.fy + 0.5 * Math.sin(this.angle + this.steer));
     }
 
 }
 
-player = new vehicle(car, 7, 5, 0, 0)
+player = new vehicle(car, 7, 50, 0, 0)
 
 
 // ----------------- game loop -------------------------
@@ -185,9 +185,7 @@ function game_update(delta) {
     b_scale /= (1 + delta * 1.0 * (isPressed[87] - isPressed[81])); //scale background using Q and W keys
     pan_x = pan_x + d_old * player.x - d_scale * player.x; //offset canvas so zoom motion is towards the player
     pan_y = pan_y + d_old * player.y - d_scale * player.y;
-    // back_x = back_x + b_old * player.x - b_scale * player.x; //offset background so the player stays at the same pixel
-    // back_y = back_y + b_old * player.y - b_scale * player.y;
-
+    
     // pan to keep the player on screen.
     if(d_scale * player.fx + pan_x >  gameWidth - margin_x) { pan_x =  gameWidth - margin_x - d_scale * player.fx; }
     if(d_scale * player.fy + pan_y > gameHeight - margin_y) { pan_y = gameHeight - margin_y - d_scale * player.fy; }
@@ -213,7 +211,8 @@ function draw() {
 
     ctx.save();
     ctx.translate(pan_x, pan_y);
-    ctx.drawImage(backgroundImg, back_x, back_y, backgroundImg.width * d_scale / b_scale, backgroundImg.height * d_scale / b_scale);
+    ctx.scale(d_scale, d_scale);
+    ctx.drawImage(backgroundImg, back_x, back_y, backgroundImg.width / b_scale, backgroundImg.height / b_scale);
     player.draw();
     ctx.restore();
 
@@ -238,7 +237,7 @@ function draw() {
     // }
     // ctx.fillStyle = "black";
     // ctx.fillText("d_scale: " + d_scale, 80, 100);
-    // ctx.fillText("w_scale: " + w_scale, 80, 140);
+    // ctx.fillText("b_scale: " + b_scale, 80, 140);
 
 }
 
