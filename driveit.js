@@ -101,7 +101,7 @@ class vehicle_type {
     }
 }
 
-car = new vehicle_type(carImg, 60, 200, 2.5, 20, 6, 2, 8, degtorad(40));
+car = new vehicle_type(carImg, 60, 200, 2.5, 20, 6, 2, 12, degtorad(40));
 
 class vehicle {
 
@@ -119,7 +119,6 @@ class vehicle {
     }
 
     update(delta, acc_in, brake_in, steer_in) {
-        this.speed += delta * acc_in * this.type.acc;
 
         if(this.speed == 0 && !acc_in && !brake_in) { this.mode = "neutral"; }
 
@@ -188,8 +187,8 @@ function game_update(delta) {
     b_scale /= (1 + delta * 1.0 * (isPressed[87] - isPressed[81])); //scale background using Q and W keys
     pan_x = pan_x + d_old * player.x - d_scale * player.x; //offset canvas so zoom motion is towards the player
     pan_y = pan_y + d_old * player.y - d_scale * player.y;
-    back_x = player.x - (b_old / b_scale) * (-back_x + player.x); //offset background so player stays fixed
-    back_y = player.y - (b_old / b_scale) * (-back_y + player.y);
+    back_x = player.x - (b_old / b_scale) * (player.x - back_x); //offset background so player stays fixed
+    back_y = player.y - (b_old / b_scale) * (player.y - back_y);
     
     // pan to keep the player on screen.
     if(d_scale * player.fx + pan_x >  gameWidth - margin_x) { pan_x =  gameWidth - margin_x - d_scale * player.fx; }
