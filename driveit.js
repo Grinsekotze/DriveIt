@@ -77,8 +77,8 @@ function paste_auto(e) {
 
 // ------------------------- driving logic ----------------------------
 
-var w_scale = 30; //world scale, px per meter
-var d_scale = 30; //drawing scale, px per meter
+var w_scale = 9.5; //world scale, px per meter
+var d_scale = 11; //drawing scale, px per meter
 
 class vehicle_type {
     constructor(img, scale, base_y, wheelbase, max_speed, acc, coast, brake, max_steer) {
@@ -94,7 +94,7 @@ class vehicle_type {
     }
 }
 
-car = new vehicle_type(carImg, 60, 200, 2.5, 10, 6, 2, 8, degtorad(40));
+car = new vehicle_type(carImg, 60, 200, 2.5, 20, 6, 2, 8, degtorad(40));
 
 class vehicle {
 
@@ -129,7 +129,7 @@ class vehicle {
             if(acc_in) { this.mode = "forward"; }
         }
         
-        this.steer += delta * degtorad(180) * steer_in;
+        this.steer += delta * degtorad(180) * steer_in * (Math.exp(-Math.log(2) / 15.0 * this.speed));
         if(this.steer >  this.type.max_steer) { this.steer =  this.type.max_steer; }
         if(this.steer < -this.type.max_steer) { this.steer = -this.type.max_steer; }
         this.steer *= (1 - delta * 2.0); 
