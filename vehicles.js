@@ -86,6 +86,11 @@ class vehicle {
 
 }
 
+const carImg = new Image();
+carImg.src = "img/car.png";
+const trailerImg = new Image();
+trailerImg.src = "img/trailer.png";
+
 car = new vehicle_type(
     carImg,         // image
     60,             // scale [px/meter]

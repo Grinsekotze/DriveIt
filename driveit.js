@@ -9,51 +9,10 @@ const margin_y = 150;
 var pan_x = 0;
 var pan_y = 0;
 
-// load images
-const carImg = new Image();
-carImg.src = "img/car.png";
-const trailerImg = new Image();
-trailerImg.src = "img/trailer.png";
-
 backgroundImg = new Image();
 backgroundImg.src = "img/campus.jpg";
 var back_x = 0;
 var back_y = 0;
-
-// ----------------- helper functions -----------------------
-
-function drawRotScale(img, x, y, pivot_x, pivot_y, angle, factor) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(angle);
-    ctx.translate(-pivot_x * factor, -pivot_y * factor);
-    ctx.drawImage(img, 0, 0, factor * img.width, factor * img.height);
-    ctx.restore();
-}
-
-function drawLine(x1, y1, x2, y2) {
-    ctx.save();
-    ctx.beginPath(); 
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
-    ctx.restore();
-}
-
-function degtorad(angle_d) {
-    return angle_d * Math.PI / 180.0;
-}
-
-function get_angle(x, y) {
-    return (x == 0) ? 
-        ( y > 0 ? degtorad(90) : degtorad(-90) ) : 
-        ( x > 0 ? Math.atan(y / x) :
-        Math.atan(y / x) + Math.PI );
-}
-
-function get_angle_from_to(x1, y1, x2, y2) {
-    return get_angle(x2 - x1, y2 - y1);
-}
 
 // ------------------------- pasting a background image ---------------
 
@@ -85,7 +44,7 @@ function paste_auto(e) {
     }
 }
 
-// ------------------------- driving logic ----------------------------
+// ------------------------- set up vehicles ----------------------------
 
 var b_scale = 11; //world scale, px per meter
 var d_scale = 30; //drawing scale, px per meter
@@ -95,7 +54,6 @@ trailer1 = new vehicle(lightTrailer, 3, 50, 0, 0);
 trailer2 = new vehicle(lightTrailer, 1, 50, 0, 0);
 player.trail = trailer1;
 trailer1.trail = trailer2;
-
 
 // ----------------- game loop -------------------------
 
