@@ -90,6 +90,10 @@ const carImg = new Image();
 carImg.src = "img/car.png";
 const trailerImg = new Image();
 trailerImg.src = "img/trailer.png";
+const busImg = new Image();
+busImg.src = "img/bus.png";
+const busTrailerImg = new Image();
+busTrailerImg.src = "img/bus_trailer.png";
 
 car = new vehicle_type(
     carImg,         // image
@@ -114,4 +118,16 @@ lightTrailer = new vehicle_type(
     100,
     degtorad(90),
     2.0
+);
+bus = new vehicle_type(
+    busImg,         // image
+    100,             // scale [px/meter]
+    870,            // rear axle position [px]
+    5.9,            // wheelbase [m]
+    20,             // max speed [m/s]
+    6,              // acceleration [m/s²]
+    2,              // drag [m/s²]
+    12,             // brake [m/s²]
+    degtorad(40),   // steering lock
+    3.4             // rear axle to coupling [m]
 );
