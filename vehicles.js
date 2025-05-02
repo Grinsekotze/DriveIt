@@ -94,6 +94,8 @@ const busImg = new Image();
 busImg.src = "img/bus.png";
 const busTrailerImg = new Image();
 busTrailerImg.src = "img/bus_trailer.png";
+const semiImg = new Image();
+semiImg.src = "img/semi.png";
 
 car = new vehicle_type(
     carImg,         // image
@@ -121,7 +123,7 @@ lightTrailer = new vehicle_type(
 );
 bus = new vehicle_type(
     busImg,         // image
-    100,             // scale [px/meter]
+    100,            // scale [px/meter]
     870,            // rear axle position [px]
     5.9,            // wheelbase [m]
     20,             // max speed [m/s]
@@ -130,4 +132,16 @@ bus = new vehicle_type(
     12,             // brake [m/s²]
     degtorad(40),   // steering lock
     3.4             // rear axle to coupling [m]
+);
+semi = new vehicle_type(
+    semiImg,        // image
+    71,             // scale [px/meter]
+    382,            // rear axle position [px]
+    3.95,            // wheelbase [m]
+    20,             // max speed [m/s]
+    6,              // acceleration [m/s²]
+    2,              // drag [m/s²]
+    12,             // brake [m/s²]
+    degtorad(40),   // steering lock
+    -0.73           // rear axle to coupling [m]
 );
