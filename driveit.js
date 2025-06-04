@@ -49,10 +49,10 @@ function paste_auto(e) {
 var b_scale = 11; //world scale, px per meter
 var d_scale = 30; //drawing scale, px per meter
 
-player = new vehicle(semi, 7, 50, 0, 0);
+player = new vehicle(garbage, 7, 50, 0, 0);
 trailer1 = new vehicle(semiTrailer, 1, 50, 0, 0);
 trailer2 = new vehicle(lightTrailer, 0, 50, 0, 0);
-player.trail = trailer1;
+// player.trail = trailer1;
 // trailer1.trail = trailer2;
 
 // ----------------- game loop -------------------------

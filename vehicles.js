@@ -98,6 +98,8 @@ const semiImg = new Image();
 semiImg.src = "img/semi.png";
 const semiTrailerImg = new Image();
 semiTrailerImg.src = "img/semi_trailer.png";
+const garbageImg = new Image();
+garbageImg.src = "img/3achsigesMF.png";
 
 car = new vehicle_type(
     carImg,         // image
@@ -159,4 +161,15 @@ semiTrailer = new vehicle_type(
     degtorad(90),   // steering lock
     5.25            // rear axle to coupling [m]
 );
-
+garbage = new vehicle_type(
+    garbageImg,     // image
+    940 / 9.90,     // scale [px/meter]
+    (1.53 + 4.77) * (940 / 9.90),    // rear axle position [px]
+    4.77,           // wheelbase [m]
+    20,             // max speed [m/s]
+    6,              // acceleration [m/s²]
+    2,              // drag [m/s²]
+    12,             // brake [m/s²]
+    degtorad(40),   // steering lock
+    3.6             // rear axle to coupling [m]
+);
