@@ -52,6 +52,7 @@ var d_scale = 30; //drawing scale, px per meter
 player = new vehicle(garbage, 7, 50, 0, 0);
 trailer1 = new vehicle(semiTrailer, 1, 50, 0, 0);
 trailer2 = new vehicle(lightTrailer, 0, 50, 0, 0);
+changeKey = "";
 // player.trail = trailer1;
 // trailer1.trail = trailer2;
 
@@ -60,7 +61,13 @@ trailer2 = new vehicle(lightTrailer, 0, 50, 0, 0);
 var isPressed = {};
 for(k = 0; k < 120; k++) { isPressed[k] = false };
 
-window.onkeyup = function(e) { isPressed[e.keyCode] = false; }
+window.onkeyup = function(e) { 
+    isPressed[e.keyCode] = false; 
+    console.log(e.keyCode)
+    if(e.keyCode == 67 || e.keyCode == 71) {
+        changeKey = e.keyCode;
+    }
+}
 window.onkeydown = function(e) { isPressed[e.keyCode] = true; }
 
 function game_update(delta) {
@@ -69,6 +76,12 @@ function game_update(delta) {
     brake_in = isPressed[40]; //down
     steer_in = isPressed[39] - isPressed[37]; //right - left. Note that since our y axis is flipped, positive angles are clockwise
     
+    if(changeKey != "") {
+        new_type = (changeKey == 67) ? car : garbage;
+        player = new vehicle(new_type, player.x, player.y, player.angle, player.speed);
+        changeKey = "";
+    }
+
     player.update(delta, acc_in, brake_in, steer_in);
 
     d_old = d_scale; b_old = b_scale;
