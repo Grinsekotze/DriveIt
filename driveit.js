@@ -14,6 +14,11 @@ backgroundImg.src = "img/campus.jpg";
 var back_x = 0;
 var back_y = 0;
 
+var tracing = false;
+var tracerate = 20; // trace every 20 frames, i.e. 200 ms
+var sincetrace = 0;
+var trace = [];
+
 // ------------------------- pasting a background image ---------------
 
 document.addEventListener('paste', function (e) { paste_auto(e); }, false);
@@ -52,7 +57,7 @@ var d_scale = 30; //drawing scale, px per meter
 player = new vehicle(garbage, 7, 50, 0, 0);
 trailer1 = new vehicle(semiTrailer, 1, 50, 0, 0);
 trailer2 = new vehicle(lightTrailer, 0, 50, 0, 0);
-changeKey = "";
+typedKey = "";
 // player.trail = trailer1;
 // trailer1.trail = trailer2;
 
@@ -64,9 +69,7 @@ for(k = 0; k < 120; k++) { isPressed[k] = false };
 window.onkeyup = function(e) { 
     isPressed[e.keyCode] = false; 
     console.log(e.keyCode)
-    if(e.keyCode == 67 || e.keyCode == 71) {
-        changeKey = e.keyCode;
-    }
+    typedKey = e.keyCode;
 }
 window.onkeydown = function(e) { isPressed[e.keyCode] = true; }
 
@@ -76,14 +79,31 @@ function game_update(delta) {
     brake_in = isPressed[40]; //down
     steer_in = isPressed[39] - isPressed[37]; //right - left. Note that since our y axis is flipped, positive angles are clockwise
     
-    if(changeKey != "") {
-        new_type = (changeKey == 67) ? car : garbage;
-        player = new vehicle(new_type, player.x, player.y, player.angle, player.speed);
-        changeKey = "";
+    if(typedKey != "") {
+        if(typedKey == 67 || typedKey == 71) { // C or G keys
+            new_type = (changeTypeKey == 67) ? car : garbage;
+            player = new vehicle(new_type, player.x, player.y, player.angle, player.speed);
+        }
+        if(typedKey == 84) { // T key
+            tracing = !tracing;
+            if(tracing) { trace = []; }
+        }
+        typedKey = "";
     }
 
     player.update(delta, acc_in, brake_in, steer_in);
 
+    // handle tracing
+    if(tracing) {
+        sincetrace += 1;
+        if(sincetrace >= tracerate) { 
+            sincetrace = 0;
+            t = new vehicle(player.type, player.x, player.y, player.angle, 0);
+            trace.push(t);
+        }
+    }
+    
+    // handle zooming and offsets
     d_old = d_scale; b_old = b_scale;
     d_scale *= (1 + delta * 1.0 * (isPressed[83] - isPressed[65])); //zoom using A and S keys
     b_scale /= (1 + delta * 1.0 * (isPressed[87] - isPressed[81])); //scale background using Q and W keys
@@ -119,9 +139,14 @@ function draw() {
     ctx.translate(pan_x, pan_y);
     ctx.scale(d_scale, d_scale);
     ctx.drawImage(backgroundImg, back_x, back_y, backgroundImg.width / b_scale, backgroundImg.height / b_scale);
-    player.draw(true);
+    player.draw(true, false, true);
     ctx.restore();
 
+    // draw trace
+    for(let t of trace) {
+        t.draw(false, true, true);
+    }
+    
     // visualize scale in bottom right corner
     scale_level = Math.floor(Math.log10(d_scale));
     scale_unit = 10 ** (1 - scale_level);
@@ -148,5 +173,4 @@ function draw() {
 }
 
 // call draw function every few ms
-
 let game = setInterval(draw, 10);
