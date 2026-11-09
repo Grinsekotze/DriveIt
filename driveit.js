@@ -140,12 +140,9 @@ function draw() {
     ctx.scale(d_scale, d_scale);
     ctx.drawImage(backgroundImg, back_x, back_y, backgroundImg.width / b_scale, backgroundImg.height / b_scale);
     player.draw(true, false, true);
+    for(let t of trace) { t.draw(true, true, true); }
     ctx.restore();
-
-    // draw trace
-    for(let t of trace) {
-        t.draw(false, true, true);
-    }
+    
     
     // visualize scale in bottom right corner
     scale_level = Math.floor(Math.log10(d_scale));
