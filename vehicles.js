@@ -69,8 +69,15 @@ class vehicle {
             this.fy + delta * this.speed * Math.sin(this.angle + this.steer));
     }
 
-    draw(with_points) {
-        drawRotScale(this.type.img, this.x, this.y, this.type.img.width / 2, this.type.base_y, this.angle + degtorad(90), 1.0 / this.type.scale)
+    draw(with_img, with_frame, with_points) {
+        if(with_img) {
+            drawRotScale(this.type.img, this.x, this.y, this.type.img.width / 2, this.type.base_y, this.angle + degtorad(90), 1.0 / this.type.scale);
+        }
+        if(with_frame) {
+            ctx.strokeStyle = "yellow";
+            ctx.lineWidth = 0.05;
+            // ctx.strokeRect()
+        }
         if(with_points) {
             ctx.fillStyle = "red";
             ctx.fillRect(this.x - 0.05, this.y - 0.05, 0.15, 0.15);
